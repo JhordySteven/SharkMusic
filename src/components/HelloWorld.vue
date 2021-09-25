@@ -1,58 +1,132 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-router" target="_blank" rel="noopener">router</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+   <div >
+     <v-simple-table class="container">
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left" >#</th>
+              <th class="text-left">TÍTULO</th>
+              <th class="text-left">ALBUM</th>
+              <th class="text-left">FECHA INCORPORACIÓN</th>
+              <th class="text-left"><Icon path={mdiAccount}
+        title="User Profile"
+        size={1}
+        horizontal
+        vertical
+        rotate={90}
+        color="red"
+        spin/>
+    )</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item,index) in objListMusic"
+              :key="index">
+              <td class="text-center">{{ index+1 }}</td>
+              <td class="text-left"><img class="listImages" :src="item.channel.urls.logo_image.original">{{ item.title }}</td>
+              <td class="text-left">{{ item.channel.title}}</td>
+              <td class="text-left">{{formatDate(item.uploaded_at)}}</td>
+              <td class="text-left">{{dateDuration(item.duration)}}</td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
+   </div>
 </template>
 
 <script>
+import axios from 'axios';
+import { mdiAccount } from '@mdi/js'
+
 export default {
   name: 'HelloWorld',
+  data(){
+    return{
+      objListMusic:[]
+    }
+  },
   props: {
     msg: String
+  },
+  methods:{
+    obtenerListadoMusic(){
+      axios.get('https://api.audioboom.com/audio_clips/popular').then((response)=>{
+        this.objListMusic=response.data.body.audio_clips
+        console.log(response.data.body.audio_clips);
+      })
+    },
+    dateDuration(seconds){
+       var hour = Math.floor(seconds / 3600);
+      hour = (hour < 10)? '0' + hour : hour;
+      var minute = Math.floor((seconds / 60) % 60);
+      minute = (minute < 10)? '0' + minute : minute;
+      var second = Math.round(seconds % 60);
+      second = (second < 10)? '0' + second : second;
+      return hour + ':' + minute + ':' + second;
+    },
+    formatDate(date){
+      let dFecha = new Date(date);
+      console.log(dFecha);
+      let dFechaFormat=dFecha.getDate()+'/' + (dFecha.getMonth()+1) + '/'+dFecha.getFullYear();
+      return dFechaFormat;
+    }
+  },
+  mounted(){
+    this.obtenerListadoMusic();
+    this.dateDuration();
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.container{
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+  color: white;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.listImages{
+  width: 50px;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+/*.containerList{
+  border: 2px solid blue;
+  text-decoration: none;
+  padding: 0px;
 }
-a {
-  color: #42b983;
+.containerList>li{
+  border: 2px solid greenyellow;
+  display: block;
+  text-decoration: none;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 50px;
+  overflow: hidden;
 }
+.containerList>li>section{
+  width: 100%;
+  height: 100%;
+  border:1px solid blueviolet;
+  overflow: hidden;
+}
+.containerList>li>section>span{
+  font-family: 'Marcellus', serif;;
+  font-size: 20px;
+  color: white;
+  border: 1px solid orange;
+  height: 100%;
+  width: auto;
+  text-align: center;
+}
+.listImages{
+  width: 50px;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+} */
 </style>
